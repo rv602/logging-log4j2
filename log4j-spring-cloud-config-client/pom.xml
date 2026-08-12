@@ -30,11 +30,14 @@
   <packaging>jar</packaging>
 
   <name>Apache Log4j Spring Cloud Config Client Support</name>
-  <description>Apache Log4j Spring Cloud Config Client Support</description>
+  <description>Apache Log4j Spring Cloud Config Client Support for Spring Boot 3.5.x and Spring Cloud Context 4.3.x (requires Java 17)</description>
 
   <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+
     <!-- Dependency versions -->
-    <spring-cloud.version>4.3.0</spring-cloud.version>
+    <!-- Spring Cloud 2025.0.x (Northfields) release train; 4.3.x aligns with Spring Boot 3.5.x -->
+    <spring-cloud.version>4.3.3</spring-cloud.version>
 
     <!--
       ~ OSGi and JPMS options
@@ -86,6 +89,12 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core-test</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Spring requires a `commons-logging` implementation and we excluded their own. -->
@@ -96,8 +105,8 @@
     </dependency>
 
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
     </dependency>
 

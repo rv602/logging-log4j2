@@ -33,6 +33,8 @@
 
   <properties>
     <module.name>org.apache.log4j</module.name>
+    <!-- WO-060: enforce japicmp binary compatibility against the Maven Central baseline. -->
+    <japicmp.skip>false</japicmp.skip>
 
     <!--
       ~ OSGi and JPMS options
@@ -46,7 +48,8 @@
     </bnd-extra-package-options>
     <bnd-extra-module-options>
       <!-- Log4j Core is optional -->
-      org.apache.logging.log4j.core;static=true
+      org.apache.logging.log4j.core;static=true,
+      org.apache.logging.log4j.trustgate;static=true
     </bnd-extra-module-options>
     <Fragment-Host>org.apache.logging.log4j.core</Fragment-Host>
   </properties>
@@ -75,6 +78,11 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
       <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-trustgate</artifactId>
     </dependency>
 
     <dependency>
@@ -113,6 +121,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.tngtech.archunit</groupId>
+      <artifactId>archunit-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <!-- JUnit -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -146,17 +160,8 @@
 
       <id>java8-incompat-fixes</id>
 
-      <!-- CI uses Java 8 for running tests.
-           Hence, we assume CI=Java8 and apply our changes elsewhere.
-
-           One might think why not activate using `<jdk>[16,)` instead?
-           This doesn't work, since the match is not against "the JDK running tests", but "the JDK running Maven".
-           These two JDKs can differ due to Maven Toolchains.
-           See `java8-tests` profile in `/pom.xml` for details. -->
       <activation>
-        <property>
-          <name>!env.CI</name>
-        </property>
+        <activeByDefault>true</activeByDefault>
       </activation>
 
       <!-- Illegal access is disabled by default in Java 16 due to JEP-396.

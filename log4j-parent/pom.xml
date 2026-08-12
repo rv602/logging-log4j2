@@ -53,6 +53,7 @@
     <asciidoctor-maven-plugin.version>2.2.4</asciidoctor-maven-plugin.version>
     <docker-maven-plugin.version>0.48.1</docker-maven-plugin.version>
     <exam-maven-plugin.version>4.14.0</exam-maven-plugin.version>
+    <japicmp-maven-plugin.version>0.26.1</japicmp-maven-plugin.version>
     <maven-taglib-plugin.version>2.4</maven-taglib-plugin.version>
     <!-- `surefire.version` property used in `apache.org:apache`: -->
     <surefire.version>3.5.2</surefire.version>
@@ -63,6 +64,7 @@
     <activemq.version>6.2.7</activemq.version>
     <angus-activation.version>2.0.3</angus-activation.version>
     <angus-mail.version>2.0.5</angus-mail.version>
+    <archunit-junit5.version>1.3.2</archunit-junit5.version>
     <assertj.version>3.27.7</assertj.version>
     <awaitility.version>4.3.0</awaitility.version>
     <bsh.version>2.0b6</bsh.version>
@@ -81,6 +83,7 @@
     <disruptor.version>3.4.4</disruptor.version>
     <embedded-ldap.version>0.9.0</embedded-ldap.version>
     <error-prone-annotations.version>2.50.0</error-prone-annotations.version>
+    <extra-enforcer-rules.version>1.12.0</extra-enforcer-rules.version>
     <felix.version>7.0.5</felix.version>
     <groovy.version>4.0.27</groovy.version>
     <guava.version>33.6.0-jre</guava.version>
@@ -89,11 +92,11 @@
     <HdrHistogram.version>2.2.2</HdrHistogram.version>
     <hsqldb.version>2.7.4</hsqldb.version>
     <jackson-bom.version>2.22.1</jackson-bom.version>
-    <!-- Override the version in Jakarta EE 9 BOM: -->
+    <!-- Override the version in Jakarta EE 10 BOM: -->
     <jakarta-activation.version>2.1.4</jakarta-activation.version>
     <jakarta-mail.version>2.1.5</jakarta-mail.version>
-    <!-- BOM with Jakarta EE 9 APIs: -->
-    <jakartaee-bom.version>9.1.0</jakartaee-bom.version>
+    <!-- BOM with Jakarta EE 10 APIs: -->
+    <jakartaee-bom.version>10.0.0</jakartaee-bom.version>
     <!-- No BOM for Java EE 8 APIs, so we list them separately: -->
     <javax-activation.version>1.2.0</javax-activation.version>
     <javax-inject.version>1</javax-inject.version>
@@ -121,7 +124,7 @@
     <log4j2-ecs-layout.version>1.8.0</log4j2-ecs-layout.version>
     <logback.version>1.3.15</logback.version>
     <maven.version>3.9.16</maven.version>
-    <mockito.version>4.11.0</mockito.version>
+    <mockito.version>5.23.0</mockito.version>
     <nashorn.version>15.7</nashorn.version>
     <org.eclipse.osgi.version>3.24.200</org.eclipse.osgi.version>
     <org.eclipse.persistence.version>2.7.16</org.eclipse.persistence.version>
@@ -131,13 +134,13 @@
     <osgi.annotation.bundle.version>2.0.0</osgi.annotation.bundle.version>
     <osgi.annotation.versioning.version>1.1.2</osgi.annotation.versioning.version>
     <pax-exam.version>4.14.0</pax-exam.version>
+    <plexus-classworlds.version>2.11.0</plexus-classworlds.version>
     <plexus-utils.version>3.6.1</plexus-utils.version>
-    <spring-boot.version>2.7.18</spring-boot.version>
-    <spring-framework.version>5.3.39</spring-framework.version>
+    <spring-boot.version>3.5.16</spring-boot.version>
+    <spring-framework.version>6.2.19</spring-framework.version>
     <stax2-api.version>4.3.0</stax2-api.version>
     <system-stubs.version>2.0.3</system-stubs.version>
-    <velocity.version>1.7</velocity.version>
-    <wiremock.version>2.35.2</wiremock.version>
+    <wiremock.version>3.13.2</wiremock.version>
     <xmlunit.version>2.12.0</xmlunit.version>
     <xz.version>1.12</xz.version>
     <zstd.version>1.5.7-4</zstd.version>
@@ -150,11 +153,20 @@
          of dependencies (requireUpperBoundDeps rule).
          ===================================================== -->
     <asm.version>9.6</asm.version>
-    <byte-buddy.version>1.14.9</byte-buddy.version>
+    <byte-buddy.version>1.18.3</byte-buddy.version>
     <commons-pool2.version>2.13.1</commons-pool2.version>
     <httpclient.version>4.5.14</httpclient.version>
     <httpcore.version>4.4.16</httpcore.version>
     <jna.version>5.19.1</jna.version>
+
+    <!-- Set to true when compile deps on later reactor modules are unresolved at validate-only.
+         See tools/CIRCULAR-DEPS.md for current status and intentional skips (WO-025). -->
+    <log4j.enforcer.banCircularDependencies.skip>false</log4j.enforcer.banCircularDependencies.skip>
+
+    <!-- WO-019: Latest GA release on Maven Central used as the japicmp comparison baseline. -->
+    <log4j.japicmp.baseline.version>2.26.1</log4j.japicmp.baseline.version>
+    <!-- WO-019: Opt-in per module; new modules without a prior release keep japicmp.skip=true. -->
+    <japicmp.skip>true</japicmp.skip>
 
     <!-- Add 'requires static' for annotation library dependencies (defined as <scope>provided</scope> in this file)
          to allow them to be visible at compile time to make the '-Xlint:classfile' check of javac pass.
@@ -236,6 +248,13 @@
 
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>config-spi-java9</artifactId>
+        <version>${project.version}</version>
+        <type>zip</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-api-java9</artifactId>
         <version>${project.version}</version>
         <type>zip</type>
@@ -265,6 +284,12 @@
         <groupId>org.eclipse.angus</groupId>
         <artifactId>angus-activation</artifactId>
         <version>${angus-activation.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.tngtech.archunit</groupId>
+        <artifactId>archunit-junit5</artifactId>
+        <version>${archunit-junit5.version}</version>
       </dependency>
 
       <dependency>
@@ -325,6 +350,13 @@
         <groupId>com.datastax.cassandra</groupId>
         <artifactId>cassandra-driver-core</artifactId>
         <version>${cassandra-driver.version}</version>
+        <exclusions>
+          <!-- WO-021: unmaintained driver resolves slf4j-api 1.7.22 and 1.7.25 on different paths; Log4j does not use SLF4J inside the driver -->
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -583,6 +615,13 @@
         <version>${jmh.version}</version>
       </dependency>
 
+      <!-- WO-021: assertj-core (1.18.3) and mockito-core (1.17.7) diverged on byte-buddy -->
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${byte-buddy.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>net.java.dev.jna</groupId>
         <artifactId>jna</artifactId>
@@ -743,6 +782,13 @@
         <version>${pax-exam.version}</version>
       </dependency>
 
+      <!-- WO-021: maven-core resolves plexus-classworlds 2.11.0 and 2.9.0 via org.eclipse.sisu.plexus -->
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-classworlds</artifactId>
+        <version>${plexus-classworlds.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
@@ -810,16 +856,10 @@
         <version>${system-stubs.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.apache.velocity</groupId>
-        <artifactId>velocity</artifactId>
-        <version>${velocity.version}</version>
-      </dependency>
-
       <!-- Used for testing `HttpAppender`: -->
       <dependency>
-        <groupId>com.github.tomakehurst</groupId>
-        <artifactId>wiremock-jre8</artifactId>
+        <groupId>org.wiremock</groupId>
+        <artifactId>wiremock</artifactId>
         <version>${wiremock.version}</version>
       </dependency>
 
@@ -886,6 +926,22 @@
   <build>
     <pluginManagement>
       <plugins>
+
+        <!-- used by `owasp-check` profile -->
+        <plugin>
+          <groupId>org.owasp</groupId>
+          <artifactId>dependency-check-maven</artifactId>
+          <version>${dependency-check-maven.version}</version>
+          <configuration>
+            <failBuildOnCVSS>7.0</failBuildOnCVSS>
+            <formats>
+              <format>HTML</format>
+              <format>JSON</format>
+            </formats>
+            <suppressionFile>${maven.multiModuleProjectDirectory}/dependency-check-suppressions.xml</suppressionFile>
+            <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
+          </configuration>
+        </plugin>
 
         <!-- used by `docker` profile -->
         <plugin>
@@ -963,6 +1019,65 @@
           </executions>
         </plugin>
 
+        <!-- WO-016: extra-enforcer-rules supplies banCircularDependencies -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <dependencies>
+            <dependency>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>extra-enforcer-rules</artifactId>
+              <version>${extra-enforcer-rules.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <!--
+          WO-019: japicmp complements BND Baseline (OSGi package versioning from logging-parent) with
+          Java binary API compatibility checks against ${log4j.japicmp.baseline.version} on Maven Central.
+          Modules without a prior release set japicmp.skip=true until their first GA release.
+          Intentional API breaks require documented parameter/excludes overrides with issue references.
+        -->
+        <plugin>
+          <groupId>com.github.siom79.japicmp</groupId>
+          <artifactId>japicmp-maven-plugin</artifactId>
+          <version>${japicmp-maven-plugin.version}</version>
+          <configuration>
+            <skip>${japicmp.skip}</skip>
+            <oldVersion>
+              <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>${project.artifactId}</artifactId>
+                <version>${log4j.japicmp.baseline.version}</version>
+                <type>${project.packaging}</type>
+              </dependency>
+            </oldVersion>
+            <newVersion>
+              <file>
+                <path>${project.build.directory}/${project.build.finalName}.${project.packaging}</path>
+              </file>
+            </newVersion>
+            <parameter>
+              <onlyModified>true</onlyModified>
+              <accessModifier>public</accessModifier>
+              <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+              <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
+              <skipPomModules>true</skipPomModules>
+              <includeSynthetic>false</includeSynthetic>
+              <ignoreMissingClasses>true</ignoreMissingClasses>
+            </parameter>
+          </configuration>
+          <executions>
+            <execution>
+              <id>check-binary-compatibility</id>
+              <goals>
+                <goal>cmp</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
+        </plugin>
+
       </plugins>
     </pluginManagement>
 
@@ -1008,6 +1123,39 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
+          <!-- WO-016/WO-025: fail validate on circular classpath dependencies; see tools/CIRCULAR-DEPS.md -->
+          <execution>
+            <id>enforce-ban-circular-dependencies</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <phase>validate</phase>
+            <configuration>
+              <skip>${log4j.enforcer.banCircularDependencies.skip}</skip>
+              <failFast>true</failFast>
+              <rules>
+                <banCircularDependencies>
+                  <!-- Optional deps can create apparent cycles without a real classpath loop -->
+                  <ignoreOptionals>true</ignoreOptionals>
+                  <!-- Test-scoped reactor modules may be unresolved at validate; slf4j-impl↔to-slf4j loop is test-only -->
+                  <ignoredScopes>test</ignoredScopes>
+                </banCircularDependencies>
+              </rules>
+            </configuration>
+          </execution>
+          <!-- WO-021: fail validate when transitive dependency versions diverge across the reactor -->
+          <execution>
+            <id>enforce-dependency-convergence</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <phase>validate</phase>
+            <configuration>
+              <rules>
+                <dependencyConvergence />
+              </rules>
+            </configuration>
+          </execution>
           <execution>
             <id>ban-logging-dependencies</id>
             <goals>
@@ -1082,7 +1230,51 @@
               </scripts>
             </configuration>
           </execution>
+          <execution>
+            <id>validate-jakarta-namespace</id>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <phase>verify</phase>
+            <configuration>
+              <continueExecuting>false</continueExecuting>
+              <scripts>
+                <script><![CDATA[
+                  if (!project.artifactId.startsWith("log4j-jakarta-")) {
+                      return
+                  }
+                  if ("jar" != project.packaging) {
+                      log.info("Skipping Jakarta namespace check, since the project type is not `jar`.")
+                      return
+                  }
+                  String jarFile = project.build.directory + "/" + project.build.finalName + ".jar"
+                  if (!new File(jarFile).exists()) {
+                      log.info("Skipping Jakarta namespace check, since `" + jarFile + "` is missing.")
+                      return
+                  }
+                  File script = new File(project.basedir.parentFile, "tools/validate-jakarta-namespace.sh")
+                  if (!script.exists()) {
+                      throw new RuntimeException("Missing Jakarta namespace validation script: " + script)
+                  }
+                  ProcessBuilder builder = new ProcessBuilder("bash", script.absolutePath, jarFile)
+                  builder.redirectErrorStream(true)
+                  Process process = builder.start()
+                  process.inputStream.eachLine { line -> log.info(line) }
+                  int exitCode = process.waitFor()
+                  if (exitCode != 0) {
+                      throw new RuntimeException("Jakarta namespace validation failed for `" + jarFile + "`.")
+                  }
+                ]]></script>
+              </scripts>
+            </configuration>
+          </execution>
         </executions>
+      </plugin>
+
+      <!-- WO-019: inherited by modules; override japicmp.skip=false to enforce binary compatibility. -->
+      <plugin>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
       </plugin>
 
       <!-- Add annotation library dependencies (defined as <scope>provided</scope> in this file) as compileOnlyApi
@@ -1137,17 +1329,11 @@
 
   <profiles>
 
-    <!-- `java8-tests` profile to force using Java 8 while running tests -->
+    <!-- `java8-tests` profile to force using Java 8 while running tests.
+         Activate manually with `-Pjava8-tests` (see BUILDING.adoc). -->
     <profile>
 
       <id>java8-tests</id>
-
-      <activation>
-        <property>
-          <name>env.CI</name>
-          <value>true</value>
-        </property>
-      </activation>
 
       <!-- There are certain Java 8 bugs[1] that cause Mockito failures[2].
            Adding necessary dependencies to workaround them.
@@ -1176,6 +1362,33 @@
                     <version>[1.8, 9)</version>
                   </jdkToolchain>
                 </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+
+    </profile>
+
+    <!-- `owasp-check` profile to scan dependencies for known vulnerabilities.
+         Activate manually with `-Powasp-check` (see `.github/workflows/build.yaml`). -->
+    <profile>
+
+      <id>owasp-check</id>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>owasp-dependency-check</id>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <phase>verify</phase>
               </execution>
             </executions>
           </plugin>
@@ -1320,6 +1533,54 @@
 
             </executions>
 
+          </plugin>
+
+        </plugins>
+      </build>
+
+    </profile>
+
+    <!--
+      ~ Jakarta module validation (WO-055): bans legacy javax.* EE API dependencies.
+      ~ Activate with -Pjakarta-module (see .github/workflows/build.yaml).
+      ~
+      ~ Bytecode namespace purity for artifactId prefixes log4j-jakarta-* is checked during
+      ~ verify by the validate-jakarta-namespace gmavenplus execution above.
+      -->
+    <profile>
+
+      <id>jakarta-module</id>
+
+      <build>
+        <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>ban-javax-ee-apis-in-jakarta-modules</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <phase>validate</phase>
+                <configuration>
+                  <rules>
+                    <bannedDependencies>
+                      <searchTransitive>true</searchTransitive>
+                      <excludes>
+                        <exclude>javax.servlet:*</exclude>
+                        <exclude>javax.servlet.jsp:*</exclude>
+                        <exclude>javax.jms:*</exclude>
+                        <exclude>javax.mail:*</exclude>
+                        <exclude>javax.persistence:*</exclude>
+                      </excludes>
+                      <message>Jakarta modules must not depend on legacy javax.* EE APIs; use jakarta.* equivalents.</message>
+                    </bannedDependencies>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
 
         </plugins>

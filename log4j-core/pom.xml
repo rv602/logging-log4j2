@@ -45,6 +45,9 @@
     <!-- Tests are located elsewhere, no need to do any processing for the `src/test` directory: -->
     <maven.test.skip>true</maven.test.skip>
 
+    <!-- WO-060: enforce japicmp binary compatibility against the Maven Central baseline. -->
+    <japicmp.skip>false</japicmp.skip>
+
     <!-- `log4j-core` plugin descriptor needs to be consumed before other modules' descriptors -->
     <log4j.docgen.pluginDescriptorsDir>${log4j.docgen.pluginDescriptorsDir.phase1}</log4j.docgen.pluginDescriptorsDir>
 
@@ -79,7 +82,10 @@
       java.lang.management;resolution:=optional,
       javax.management.*;resolution:=optional,
       <!-- `java.naming` is optional -->
-      javax.naming;resolution:=optional
+      javax.naming;resolution:=optional,
+      org.apache.logging.log4j.trustgate.*;resolution:=optional,
+      org.apache.logging.log4j.common.*;resolution:=optional,
+      org.apache.logging.log4j.config.spi.*;resolution:=optional
     </bnd-extra-package-options>
     <bnd-extra-module-options>
       <!-- OSGI is optional in JPMS and it shouldn't be transitive either (#1895) -->
@@ -96,6 +102,9 @@
       com.fasterxml.jackson.dataformat.yaml;transitive=false,
       java.management;transitive=false;static=true,
       java.naming;transitive=false,
+      org.apache.logging.log4j.trustgate;transitive=false;static=true,
+      org.apache.logging.log4j.common;transitive=false,
+      org.apache.logging.log4j.config.spi;transitive=false,
       org.apache.commons.csv;transitive=false,
       org.jspecify;transitive=false,
       org.zeromq.jeromq;transitive=false,
@@ -144,6 +153,18 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>config-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-trustgate</artifactId>
     </dependency>
     <!-- Used for compressing to formats other than zip and gz -->
     <dependency>
@@ -275,6 +296,31 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+
+      <!-- WO-060: documented exclusions for intentional modernization API moves (see compatibility-breaks.adoc). -->
+      <plugin>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
+        <configuration>
+          <parameter>
+            <onlyModified>true</onlyModified>
+            <accessModifier>public</accessModifier>
+            <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+            <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
+            <skipPomModules>true</skipPomModules>
+            <includeSynthetic>false</includeSynthetic>
+            <ignoreMissingClasses>true</ignoreMissingClasses>
+            <excludes>
+              <!-- WO-018: Clock SPI extracted to config-spi -->
+              <exclude>org.apache.logging.log4j.core.util.Clock</exclude>
+              <exclude>org.apache.logging.log4j.core.util.FileWatcher</exclude>
+              <exclude>org.apache.logging.log4j.core.util.WrappedFileWatcher</exclude>
+              <exclude>org.apache.logging.log4j.core.util.WatchManager</exclude>
+              <exclude>org.apache.logging.log4j.core.time.PreciseClock</exclude>
+            </excludes>
+          </parameter>
+        </configuration>
       </plugin>
 
     </plugins>

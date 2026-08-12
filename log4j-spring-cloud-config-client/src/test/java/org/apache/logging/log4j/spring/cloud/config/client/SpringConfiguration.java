@@ -17,9 +17,11 @@
 package org.apache.logging.log4j.spring.cloud.config.client;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
- * Needed to make Spring happy.
+ * Test configuration that imports the module auto-configuration.
  */
 @Configuration
+@Import(Log4j2SpringCloudConfigClientAutoConfiguration.class)
 public class SpringConfiguration {}

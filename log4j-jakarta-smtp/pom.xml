@@ -28,11 +28,19 @@
   <name>Apache Log4j Jakarta SMTP</name>
   <description>Apache Log4j Simple Mail Transfer Protocol (SMTP) Appender, version for Jakarta EE 9.</description>
   <properties>
+    <!-- WO-060: new module — remove bnd.baseline.skip and japicmp.skip after first GA release. -->
+    <bnd.baseline.skip>true</bnd.baseline.skip>
+    <japicmp.skip>true</japicmp.skip>
 
     <!--
       ~ OSGi and JPMS options
       -->
+    <bnd-multi-release>true</bnd-multi-release>
     <bnd-module-name>org.apache.logging.log4j.smtp</bnd-module-name>
+    <bnd-extra-module-options>
+      jakarta.activation;transitive=false;static=true,
+      jakarta.mail;transitive=false;static=true
+    </bnd-extra-module-options>
     <Fragment-Host>org.apache.logging.log4j.core</Fragment-Host>
   </properties>
 
@@ -86,6 +94,36 @@
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>compile-module-info</id>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <phase>compile</phase>
+            <configuration>
+              <release>11</release>
+              <compileSourceRoots>
+                <compileSourceRoot>${project.basedir}/src/main/java9</compileSourceRoot>
+              </compileSourceRoots>
+              <multiReleaseOutput>true</multiReleaseOutput>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

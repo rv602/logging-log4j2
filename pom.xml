@@ -242,7 +242,11 @@
 
     <!-- Next unpublished, but internally and *implicitly* (e.g., as a plugin dependency) consumed modules in alphabetical order: -->
     <module>log4j-api-java9</module>
+    <module>config-spi-java9</module>
     <module>log4j-core-java9</module>
+
+    <!-- WO-016: trustgate is a compile dependency of log4j-api and must be packaged before consumers -->
+    <module>log4j-trustgate</module>
 
     <!-- Last comes the rest of the modules in alphabetical order.
          Note that modules here must have a corresponding entry in `dependencyManagement > dependencies` block below! -->
@@ -251,15 +255,19 @@
     <module>log4j-api-test</module>
     <module>log4j-appserver</module>
     <module>log4j-cassandra</module>
+    <module>log4j-common</module>
+    <module>config-spi</module>
     <module>log4j-core</module>
+    <!-- WO-016: fuzz-test helpers must be packaged before their *-fuzz-test wrappers -->
+    <module>log4j-fuzz-test</module>
     <module>log4j-core-fuzz-test</module>
     <module>log4j-core-its</module>
     <module>log4j-core-test</module>
     <module>log4j-couchdb</module>
     <module>log4j-docker</module>
-    <module>log4j-fuzz-test</module>
     <module>log4j-iostreams</module>
     <module>log4j-jakarta-jms</module>
+    <module>log4j-jakarta-jpa</module>
     <module>log4j-jakarta-smtp</module>
     <module>log4j-jakarta-web</module>
     <module>log4j-jcl</module>
@@ -270,8 +278,9 @@
     <module>log4j-layout-template-json</module>
     <module>log4j-layout-template-json-fuzz-test</module>
     <module>log4j-layout-template-json-test</module>
-    <module>log4j-mongodb</module>
+    <!-- WO-016: mongodb4 must be packaged before log4j-mongodb -->
     <module>log4j-mongodb4</module>
+    <module>log4j-mongodb</module>
     <module>log4j-osgi-test</module>
     <module>log4j-perf-test</module>
     <module>log4j-slf4j-impl</module>
@@ -279,10 +288,11 @@
     <module>log4j-slf4j2-impl-fuzz-test</module>
     <module>log4j-spring-boot</module>
     <module>log4j-spring-cloud-config-client</module>
+    <!-- WO-016: log4j-web must be packaged before log4j-taglib -->
+    <module>log4j-web</module>
     <module>log4j-taglib</module>
     <module>log4j-to-slf4j</module>
     <module>log4j-to-jul</module>
-    <module>log4j-web</module>
 
   </modules>
 
@@ -367,6 +377,7 @@
     <!-- =====================================================
          Direct dependency version properties (in alphabetical order)
          ===================================================== -->
+    <dependency-check-maven.version>13.0.0</dependency-check-maven.version>
     <log4j-docgen.version>0.9.0</log4j-docgen.version>
     <node.version>21.7.1</node.version>
     <npm.version>10.5.0</npm.version>
@@ -388,6 +399,12 @@
       <!-- List of managed dependencies (in alphabetical order) that are intended for public consumption.
            Modules that are not used anywhere (e.g., `log4j-core-its`, `log4j-osgi-test`) should not be placed here.
            Modules that are used only internally (e.g., `log4j-layout-template-json-test`) should be added to `dependencyManagement > dependencies` in `log4j-parent/pom.xml`. -->
+
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>config-spi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
@@ -416,6 +433,12 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-cassandra</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-common</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -458,6 +481,12 @@
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-jakarta-jms</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-jakarta-jpa</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -553,6 +582,12 @@
 
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-trustgate</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-to-slf4j</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -590,7 +625,6 @@
             <exclude>src/site/resources/font-awesome-4.7.0/fonts/fontawesome-webfont.svg</exclude>
             <!-- Generated files -->
             <exclude>**/.toDelete</exclude>
-            <exclude>velocity.log</exclude>
             <!-- Other -->
             <exclude>**/README.md</exclude>
             <exclude>SECURITY.md</exclude>
@@ -988,6 +1022,43 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <!-- Aggregates dependency vulnerability reports for all reactor modules.
+         Activate manually with `-Powasp-check` (see `.github/workflows/build.yaml`). -->
+    <profile>
+
+      <id>owasp-check</id>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>${dependency-check-maven.version}</version>
+            <inherited>false</inherited>
+            <configuration>
+              <failBuildOnCVSS>7.0</failBuildOnCVSS>
+              <formats>
+                <format>HTML</format>
+                <format>JSON</format>
+              </formats>
+              <suppressionFile>${maven.multiModuleProjectDirectory}/dependency-check-suppressions.xml</suppressionFile>
+              <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
+            </configuration>
+            <executions>
+              <execution>
+                <id>owasp-dependency-check-aggregate</id>
+                <goals>
+                  <goal>aggregate</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+
     </profile>
 
     <profile>

@@ -22,8 +22,11 @@ import java.io.File;
  * Watches for changes in a {@link File} and performs an action when the file is modified.
  *
  * @see WatchManager
+ * @deprecated Use {@link org.apache.logging.log4j.config.spi.FileWatcher} from {@code config-spi}. This
+ *             interface remains as a compatibility facade for third-party plugins.
  */
-public interface FileWatcher {
+@Deprecated
+public interface FileWatcher extends org.apache.logging.log4j.config.spi.FileWatcher {
 
     /**
      * Called when a {@link WatchManager} detects that the given {@link File} changed.
@@ -32,5 +35,6 @@ public interface FileWatcher {
      *            the file that changed.
      * @see WatchManager
      */
+    @Override
     void fileModified(File file);
 }

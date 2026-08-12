@@ -36,6 +36,9 @@
     <!-- Ignore less important (high rank) bugs for test artifacts -->
     <spotbugs.maxRank>9</spotbugs.maxRank>
 
+    <!-- WireMock 3.x requires Java 11 and Jakarta EE (Jetty 11) -->
+    <surefire.jdkToolchain>[11, )</surefire.jdkToolchain>
+
     <!--
       ~ OSGi and JPMS options
       -->
@@ -90,6 +93,18 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-trustgate</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.tngtech.archunit</groupId>
+      <artifactId>archunit-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
     </dependency>
@@ -135,7 +150,7 @@
       <artifactId>junit-platform-commons</artifactId>
     </dependency>
 
-    <!-- Needed for JNDI mocks using `org.springframework.mock.jndi` -->
+    <!-- Optional; retained for compatibility with test utilities that may use Spring Test APIs -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
@@ -378,8 +393,8 @@
 
     <!-- Used for testing HttpAppender -->
     <dependency>
-      <groupId>com.github.tomakehurst</groupId>
-      <artifactId>wiremock-jre8</artifactId>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -449,17 +464,8 @@
 
       <id>java8-incompat-fixes</id>
 
-      <!-- CI uses Java 8 for running tests.
-           Hence, we assume CI=Java8 and apply our changes elsewhere.
-
-           One might think why not activate using `<jdk>[16,)` instead?
-           This doesn't work, since the match is not against "the JDK running tests", but "the JDK running Maven".
-           These two JDKs can differ due to Maven Toolchains.
-           See `java8-tests` profile in `/pom.xml` for details. -->
       <activation>
-        <property>
-          <name>!env.CI</name>
-        </property>
+        <activeByDefault>true</activeByDefault>
       </activation>
 
       <!-- JEP-335 has deprecated the built-in JavaScript engine (Nashorn) in Java 11, and JEP-372 removed it in Java 15.

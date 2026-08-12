@@ -26,5 +26,10 @@ public final class Tags {
      */
     public static final String ASYNC_LOGGERS = "org.apache.logging.log4j.core.test.categories.AsyncLoggers";
 
+    /**
+     * Cross-module integration tests. Same name as the JUnit 4 category.
+     */
+    public static final String INTEGRATION_TESTS = "org.apache.logging.log4j.core.test.categories.IntegrationTests";
+
     private Tags() {}
 }

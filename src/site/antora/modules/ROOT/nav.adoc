@@ -19,6 +19,7 @@
 ** xref:release-notes.adoc[]
 * link:{logging-services-url}/support.html[Support]
 ** xref:versioning.adoc[]
+** xref:compatibility-breaks.adoc[]
 ** link:{logging-services-url}/security.html[Security]
 
 .xref:manual/index.adoc[]
@@ -38,6 +39,8 @@
 ** xref:manual/flowtracing.adoc[]
 * xref:manual/implementation.adoc[Implementation]
 ** xref:manual/architecture.adoc[]
+** xref:architecture-overview.adoc[Modernization architecture]
+** xref:trustgate.adoc[TrustGate input validation]
 ** xref:manual/config-intro.adoc[]
 *** xref:manual/configuration.adoc[]
 *** xref:manual/systemproperties.adoc[]
@@ -59,6 +62,7 @@
 ** xref:manual/extending.adoc[Extending]
 *** xref:manual/plugins.adoc[]
 ** xref:manual/performance.adoc[]
+*** xref:modernization-performance-validation.adoc[]
 *** xref:manual/async.adoc[]
 *** xref:manual/garbagefree.adoc[]
 
@@ -71,9 +75,13 @@
 * xref:migrate-from-log4j1.adoc[]
 * xref:migrate-from-logback.adoc[]
 * xref:migrate-from-slf4j.adoc[]
+* xref:manual/migration-spring-boot-3.adoc[]
+* xref:architecture-overview.adoc[]
+* xref:trustgate.adoc[]
 * xref:graalvm.adoc[]
 * xref:hibernate.adoc[]
 * xref:jakarta.adoc[]
+* xref:manual/jakarta-migration.adoc[]
 * xref:soa.adoc[]
 * xref:development.adoc[]
 

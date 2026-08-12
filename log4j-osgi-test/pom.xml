@@ -87,6 +87,26 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-jakarta-web</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-jakarta-jms</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-jakarta-smtp</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-jakarta-jpa</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.lmax</groupId>
       <artifactId>disruptor</artifactId>
       <scope>test</scope>
@@ -238,6 +258,7 @@
               </classpathDependencyExcludes>
               <excludes>
                 <exclude>org.apache.logging.log4j.osgi.tests.FelixLoadApiBundleTest</exclude>
+                <exclude>org.apache.logging.log4j.osgi.tests.FelixJakartaFragmentInstallTest</exclude>
                 <exclude>org.apache.logging.log4j.osgi.tests.DisruptorTest</exclude>
               </excludes>
             </configuration>
@@ -273,6 +294,7 @@
               </classpathDependencyExcludes>
               <excludes>
                 <exclude>org.apache.logging.log4j.osgi.tests.EquinoxLoadApiBundleTest</exclude>
+                <exclude>org.apache.logging.log4j.osgi.tests.EquinoxJakartaFragmentInstallTest</exclude>
                 <exclude>org.apache.logging.log4j.osgi.tests.DisruptorTest</exclude>
               </excludes>
             </configuration>
@@ -310,17 +332,8 @@
 
       <id>java8-incompat-fixes</id>
 
-      <!-- CI uses Java 8 for running tests.
-           Hence, we assume CI=Java8 and apply our changes elsewhere.
-
-           One might think why not activate using `<jdk>[16,)` instead?
-           This doesn't work, since the match is not against "the JDK running tests", but "the JDK running Maven".
-           These two JDKs can differ due to Maven Toolchains.
-           See `java8-tests` profile in `/pom.xml` for details. -->
       <activation>
-        <property>
-          <name>!env.CI</name>
-        </property>
+        <activeByDefault>true</activeByDefault>
       </activation>
 
       <!-- Illegal access is disabled by default in Java 16 due to JEP-396.
